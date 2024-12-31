@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"id": "note-aggregator",
+	"name": "Note Aggregator",
+	"version": "0.0.1",
+	"minAppVersion": "1.7.7",
+	"description": "Collects notes associated with the desired date range.",
+	"author": "Mitchell V",
+	"authorUrl": "https://mitchellv.ca",
+	"fundingUrl": "https://buymeacoffee.com/mitchellv",
 	"isDesktopOnly": false
 }
