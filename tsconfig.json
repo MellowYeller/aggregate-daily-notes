@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./app",
+    "baseUrl": "src",
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
@@ -18,9 +18,12 @@
       "ES5",
       "ES6",
       "ES7"
+    ],
+    "types": [
+      "obsidian-typings",
     ]
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
   ]
 }

@@ -1,7 +1,5 @@
-import { AggregateDailyNotesCommand } from 'commands/aggregate-daily-notes';
-import { CustomArrayDict } from 'models/custom-array-dict';
-import { ExtendedMetadataCache } from 'models/extended-metadata-cache';
-import { App, Editor, LinkCache, MarkdownFileInfo, MarkdownView, MetadataCache, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { AggregateDailyNotesCommand } from './commands/aggregate-daily-notes';
+import { App, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
 
@@ -13,7 +11,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 	mySetting: 'default'
 }
 
-export default class MyPlugin extends Plugin {
+export default class DailyNoteAggregatorPlugin extends Plugin {
 	settings!: MyPluginSettings;
 
 	async onload() {
@@ -104,9 +102,9 @@ class SampleModal extends Modal {
 }
 
 class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+	plugin: DailyNoteAggregatorPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: DailyNoteAggregatorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

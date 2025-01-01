@@ -1,13 +1,12 @@
-import MyPlugin from "main";
-import { ExtendedMetadataCache } from "models/extended-metadata-cache";
-import { Command, Editor, MarkdownFileInfo, MarkdownView, Notice, Plugin } from "obsidian";
+import DailyNoteAggregatorPlugin from "../main";
+import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 
 export class AggregateDailyNotesCommand implements Command {
     id = 'aggregate-daily-notes';
     name = 'Aggregate Daily Notes';
-    private plugin: Plugin;
+    private plugin: DailyNoteAggregatorPlugin;
 
-    constructor(plugin: Plugin) {
+    constructor(plugin: DailyNoteAggregatorPlugin) {
         this.plugin = plugin;
     }
 
@@ -17,12 +16,16 @@ export class AggregateDailyNotesCommand implements Command {
             new Notice('File not found');
         return;
         }
+        // Need to check this for backlink support?
+        this.plugin.app.internalPlugins.config.backlink === true;
+        this.plugin.app.internalPlugins.plugins.backlink.instance.options
+        this.plugin.app.internalPlugins.plugins["daily-notes"].instance.options
         const cachedMetadata = this.plugin.app.metadataCache.getFileCache(file);
         if (!cachedMetadata) {
             new Notice('Metadata not found');
             return;
         }
-        const extendedCache = this.plugin.app.metadataCache as ExtendedMetadataCache;
+        const extendedCache = this.plugin.app.metadataCache;
         const outgoingLinks = cachedMetadata?.links ?? [];
         const incomingLinks = extendedCache.getBacklinksForFile(file);
         cachedMetadata?.links?.forEach((link) => {
@@ -32,7 +35,7 @@ export class AggregateDailyNotesCommand implements Command {
         result.data.forEach((value, key) => {
             console.log('Backlinks for ' + key);
             value.forEach((link) => {
-                console.log(link.link, link.displayText, link.position);
+                console.log(link.link, link.displayText);
             });
         });
     }
