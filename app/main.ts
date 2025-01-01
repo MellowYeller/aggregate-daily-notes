@@ -1,3 +1,6 @@
+import { AggregateDailyNotesCommand } from 'commands/aggregate-daily-notes';
+import { CustomArrayDict } from 'models/custom-array-dict';
+import { ExtendedMetadataCache } from 'models/extended-metadata-cache';
 import { App, Editor, LinkCache, MarkdownFileInfo, MarkdownView, MetadataCache, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
@@ -8,22 +11,6 @@ interface MyPluginSettings {
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
 	mySetting: 'default'
-}
-interface CustomArrayDict<T> {
-    data: Map<string, T[]>;
-
-    add(key: string, value: T): void;
-    clear(key: string): void;
-    clearAll(): void;
-    contains(key: string, value: T): boolean;
-    count(): number;
-    get(key: string): T[] | null;
-    keys(): string[];
-    remove(key: string, value: T): void;
-}
-
-interface ExtendedMetadataCache extends MetadataCache {
-	getBacklinksForFile(file: TFile): CustomArrayDict<LinkCache>;
 }
 
 export default class MyPlugin extends Plugin {
@@ -44,48 +31,14 @@ export default class MyPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText('Status Bar Text');
 
+		this.addCommand(new AggregateDailyNotesCommand(this));
+
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
 				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-				const file = this.app.vault.getFileByPath('daily/2024-12-31.md');
-				if (!file) {
-					new Notice('File not found');
-					return;
-				}
-				const cachedMetadata = this.app.metadataCache.getFileCache(file);
-				if (!cachedMetadata) {
-					new Notice('Metadata not found');
-					return;
-				}
-				cachedMetadata?.links?.forEach((link) => {
-					console.log(link.link, link.displayText, link.position);
-				});
-				const extendedCache = this.app.metadataCache as ExtendedMetadataCache;
-				const result = extendedCache.getBacklinksForFile(file);
-				result.data.forEach((value, key) => {
-					console.log('Backlinks for ' + key);
-					value.forEach((link) => {
-						console.log(link.link, link.displayText, link.position);
-					});
-				});
-				/*
-				extendedCache.getBacklinksForFile(file).forEach((link) => {
-					console.log('Backlink:');
-					console.log(link.link, link.displayText, link.position);
-				});
-				*/
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
