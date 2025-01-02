@@ -1,3 +1,4 @@
+import moment from "moment";
 import DailyNoteAggregatorPlugin from "../main";
 import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 
@@ -11,32 +12,58 @@ export class AggregateDailyNotesCommand implements Command {
     }
 
     editorCallback = (editor: Editor, view: MarkdownView | MarkdownFileInfo) => {
-        const file = this.plugin.app.vault.getFileByPath('daily/2024-12-31.md');
+        const dailyNoteEnabled = this.plugin.app.internalPlugins.config["daily-notes"] === true;
+        if (!dailyNoteEnabled) {
+            console.warn('Daily Notes plugin is not enabled!');
+        }
+
+        const backlinksEnabled = this.plugin.app.internalPlugins.config.backlink === true;
+        if (!backlinksEnabled) {
+            console.warn('Backlinks plugin is not enabled!');
+        }
+
+        const dailyNoteOptions = this.plugin.app.internalPlugins.plugins["daily-notes"].instance.options;
+        const dateFormat = dailyNoteOptions.format ?? 'YYYY-MM-DD';
+        const dailyParentFolder = dailyNoteOptions.folder ?? '';
+
+        const startDate = '2025-01-01';
+        const date = moment(startDate, dateFormat);
+        if (!date.isValid()) {
+            console.error('Could not build moment from input!');
+            console.log(`Date: ${startDate}`);
+            console.log(`Format: ${dateFormat}`);
+            return;
+        }
+
+        const file = this.plugin.app.vault.getFileByPath(`${dailyParentFolder}/${date.format(dateFormat)}.md`);
+
         if (!file) {
             new Notice('File not found');
         return;
         }
-        // Need to check this for backlink support?
-        this.plugin.app.internalPlugins.config.backlink === true;
-        this.plugin.app.internalPlugins.plugins.backlink.instance.options
-        this.plugin.app.internalPlugins.plugins["daily-notes"].instance.options
+
         const cachedMetadata = this.plugin.app.metadataCache.getFileCache(file);
         if (!cachedMetadata) {
             new Notice('Metadata not found');
             return;
         }
-        const extendedCache = this.plugin.app.metadataCache;
+
+        const cache = this.plugin.app.metadataCache;
         const outgoingLinks = cachedMetadata?.links ?? [];
-        const incomingLinks = extendedCache.getBacklinksForFile(file);
-        cachedMetadata?.links?.forEach((link) => {
-            console.log(link.link, link.displayText, link.position);
-        });
-        const result = extendedCache.getBacklinksForFile(file);
-        result.data.forEach((value, key) => {
-            console.log('Backlinks for ' + key);
-            value.forEach((link) => {
-                console.log(link.link, link.displayText);
-            });
-        });
+        const incomingLinks = cache.getBacklinksForFile(file);
+
+        let report = '';
+        report += '### Outgoing\n';
+        for (const outLink of outgoingLinks) {
+            report += `- [[${outLink.link}]]\n`;
+        }
+
+        report += '\n### Backlinks\n';
+        // Values here would be more than one links originating in the key
+        for (const [sourceFileName, references] of incomingLinks.data) {
+            report += `- [[${sourceFileName}]]\n`
+        }
+        editor.replaceSelection(report);
+
     }
 }
