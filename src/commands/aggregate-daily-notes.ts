@@ -37,7 +37,7 @@ export class AggregateDailyNotesCommand implements Command {
         const dailyParentFolder = dailyNoteOptions.folder ?? '';
         const cache = this.plugin.app.metadataCache;
 
-        let date = data.startDate;
+        let date = data.startDate.clone();
         let linksSection = '';
         let notesSection = '';
         const notesSet = new Set<string>();
