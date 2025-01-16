@@ -1,7 +1,6 @@
 import moment from "moment";
 import DailyNoteAggregatorPlugin from "../main";
-import { App, Command, Editor, MarkdownFileInfo, MarkdownView, Modal, Setting, SuggestModal, TAbstractFile } from "obsidian";
-import { get } from "http";
+import { App, Command, Editor, MarkdownFileInfo, MarkdownView, Modal, Setting, TAbstractFile } from "obsidian";
 
 export class AggregateDailyNotesCommand implements Command {
     id = 'aggregate-daily-notes';
@@ -23,11 +22,10 @@ export class AggregateDailyNotesCommand implements Command {
             console.warn('Backlinks plugin is not enabled!');
         }
 
-        getDailyNotes(this.plugin.app);
-        const test = new AggregateDailyNotesCommandModal(this.plugin.app);
+        const modal = new AggregateDailyNotesCommandModal(this.plugin.app);
         let data: AggregateDailyNotesCommandModalData;
         try {
-            data = await test.openAndGetValue();
+            data = await modal.openAndGetValue();
         } catch (error) {
             console.error(error);
             new Notice('Error getting data from modal');
@@ -42,6 +40,7 @@ export class AggregateDailyNotesCommand implements Command {
         let date = data.startDate;
         let linksSection = '';
         let notesSection = '';
+        const notesSet = new Set<string>();
 
         while (date.isBefore(data.endDate, 'day')) {
             const filePath = `${dailyParentFolder}/${date.format(dateFormat)}.md`;
@@ -66,13 +65,15 @@ export class AggregateDailyNotesCommand implements Command {
             linksSection += `### ${date.format(dateFormat)}\n`;
             linksSection += '#### Outgoing Links\n';
             for (const outLink of outgoingLinks) {
-             linksSection += `- [[${outLink.link}]]\n`;
+                linksSection += `- [[${outLink.link}]]\n`;
+                notesSet.add(outLink.link);
             }
 
             linksSection += '\n#### Backlinks\n';
             // Values here would be more than one links originating in the key
             for (const [sourceFileName, references] of incomingLinks.data) {
-             linksSection += `- [[${sourceFileName}]]\n`
+                linksSection += `- [[${sourceFileName}]]\n`
+                notesSet.add(sourceFileName);
             }
 
             notesSection += `### [[${date.format(dateFormat)}]]\n`;
@@ -81,8 +82,16 @@ export class AggregateDailyNotesCommand implements Command {
             date = date.add(1, 'day');
         }
 
+        let uniqueNotesAccessed = '';
+        for (const note of notesSet) {
+            uniqueNotesAccessed += `- [[${note}]]\n`;
+        }
+
         const report = `# Daily Notes Report
-${date.subtract(7, 'days').format(dateFormat)} through ${date.format(dateFormat)}
+${data.startDate.format(dateFormat)} through ${data.endDate.format(dateFormat)}
+
+## Notes Accessed
+${uniqueNotesAccessed}
 
 ## Links
 ${linksSection}
