@@ -57,8 +57,8 @@ export class ReportBuilder {
             report += '#### Backlinks\n';
             if (!day.incommingLinks)
                 report += '*None*\n';
-            for (const [note, reference] of day.incommingLinks) {
-                report += `- [[${note}]]\n`;
+            for (const link of day.getBacklinkBaseNames()) {
+                report += `- [[${link}]]\n`;
             }
             report += '\n';
         }
