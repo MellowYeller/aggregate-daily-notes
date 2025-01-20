@@ -13,6 +13,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 
 export default class DailyNoteAggregatorPlugin extends Plugin {
 	settings!: MyPluginSettings;
+	internalDateFormat = 'YYYY-MM-DD';
 
 	async onload() {
 		await this.loadSettings();
