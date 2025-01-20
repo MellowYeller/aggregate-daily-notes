@@ -48,14 +48,14 @@ export class ReportBuilder {
             // Title for day summary
             report += `### ${day.date.format(dateFormat)}\n`;
             report += `#### Outgoing Links\n`;
-            if (!day.outgoingLinks)
+            if (!day.outgoingLinks?.length)
                 report += `*None*\n`;
             for (const link of day.outgoingLinks) {
                 report += `- [[${link.link}]]\n`;
             }
 
             report += '#### Backlinks\n';
-            if (!day.incommingLinks)
+            if (!day.incommingLinks?.size)
                 report += '*None*\n';
             for (const link of day.getBacklinkBaseNames()) {
                 report += `- [[${link}]]\n`;
