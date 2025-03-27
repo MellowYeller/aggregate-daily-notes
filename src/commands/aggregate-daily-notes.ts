@@ -1,6 +1,6 @@
 import DailyNoteAggregatorPlugin from "../main";
 import { StartAndEndDateModal, StartAndEndDateModalData } from "../modals/start-and-end-date-modal"
-import { App, Command, Editor, FileManager, LinkCache, MarkdownFileInfo, MarkdownView, Modal, Reference, Setting, TAbstractFile, TFile } from "obsidian";
+import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 import { DailyNotesSummaryInfo } from "classes/daily-notes-summary-info";
 import { ReportBuilder } from "classes/report-builder";
 
@@ -25,7 +25,7 @@ export class AggregateDailyNotesCommand implements Command {
         }
 
         // Get start & end dates from user
-        const modal = new StartAndEndDateModal(this.plugin.app);
+        const modal = new StartAndEndDateModal(this.plugin);
         let data: StartAndEndDateModalData;
         try {
             data = await modal.openAndGetValue();

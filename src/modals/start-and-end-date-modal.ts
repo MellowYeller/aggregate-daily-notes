@@ -1,6 +1,7 @@
 import { DailyNotesHelper } from "classes/daily-notes-helper";
+import DailyNoteAggregatorPlugin from "main";
 import moment from "moment";
-import { Modal, TAbstractFile, App, Setting } from "obsidian";
+import { Modal, TAbstractFile, Setting } from "obsidian";
 
 export interface StartAndEndDateModalData {
     startDate: moment.Moment;
@@ -12,12 +13,14 @@ export class StartAndEndDateModal extends Modal {
     private rejectPromise!: (reason?: any) => void;
     data: StartAndEndDateModalData;
     dailyNotes: TAbstractFile[] = [];
+    plugin: DailyNoteAggregatorPlugin;
 
-    constructor(app: App) {
-        super(app);
+    constructor(plugin: DailyNoteAggregatorPlugin) {
+        super(plugin.app);
+        this.plugin = plugin;
         this.data = {
-            startDate: moment().subtract(7, 'days'),
-            endDate: moment().subtract(1, 'days'),
+            startDate: moment().subtract(plugin.settings.startDateDistance, 'days'),
+            endDate: moment().subtract(plugin.settings.endDateDistance, 'days'),
         };
         this.dailyNotes = DailyNotesHelper.getDailyNotes(app);
     }

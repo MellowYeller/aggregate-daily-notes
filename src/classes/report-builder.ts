@@ -15,23 +15,25 @@ export class ReportBuilder {
 
         const dailyNoteOptions = DailyNotesHelper.getDailyNotesOptions(this.app);
         const dateFormat = (dailyNoteOptions.format) ? dailyNoteOptions.format : 'YYYY-MM-DD';
+        const settings = this.info.plugin.settings;
+        const sortedDailyInfo = this.info.getSortedDailyData();
 
         let report = '';
 
         // Generate header
-        report += '# Daily Notes Report\n';
+        report += `# ${settings.reportHeader}\n`;
 
         // Time span covered
-        report += `${this.info.startDate.format(dateFormat)} through ${this.info.endDate.format(dateFormat)}\n\n`
+        report += `${this.info.startDate.format(settings.dateDisplay)} through ${this.info.endDate.format(settings.dateDisplay)}\n\n`
 
-        // Check for any notes
+        // Check for 0 daily notes in range
         if (!this.info.dailyData.size) {
             report += 'No daily notes for this date range.\n';
             return report;
         }
 
         // Unique notes accessed
-        if (this.info.uniqueNotes.size) {
+        if (settings.includeNotesReferenced && this.info.uniqueNotes.size) {
             report += '## Notes Accessed\n';
 
             for (const note of this.info.uniqueNotes) {
@@ -41,32 +43,42 @@ export class ReportBuilder {
         }
 
         // Links by day
-        report += '## Links by Day\n';
+        if (settings.includeDailyNoteList) {
+            report += '## Links by Day\n';
 
-        const sortedDailyInfo = this.info.getSortedDailyData();
-        for (const day of sortedDailyInfo) {
-            // Title for day summary
-            report += `### ${day.date.format(dateFormat)}\n`;
-            report += `#### Outgoing Links\n`;
-            if (!day.outgoingLinks?.length)
-                report += `*None*\n`;
-            for (const link of day.outgoingLinks) {
-                report += `- [[${link.link}]]\n`;
-            }
+            for (const day of sortedDailyInfo) {
+                // Title for day summary
+                report += `### [[${day.date.format(dateFormat)}|${day.date.format(settings.dateDisplay)}]]\n`;
 
-            report += '#### Backlinks\n';
-            if (!day.incommingLinks?.size)
-                report += '*None*\n';
-            for (const link of day.getBacklinkBaseNames()) {
-                report += `- [[${link}]]\n`;
+                // Outgoing links
+                if (settings.includeOutgoingReferences) {
+                    report += `#### Outgoing Links\n`;
+                    if (!day.outgoingLinks?.length)
+                        report += `*None*\n`;
+                    for (const link of day.outgoingLinks) {
+                        report += `- [[${link.link}]]\n`;
+                    }
+                }
+
+                // Incomming links
+                if (settings.includeIncomingReferences) {
+                    report += '#### Backlinks\n';
+                    if (!day.incommingLinks?.size)
+                        report += '*None*\n';
+                    for (const link of day.getBacklinkBaseNames()) {
+                        report += `- [[${link}]]\n`;
+                    }
+                }
+                report += '\n';
             }
-            report += '\n';
         }
 
         // Daily notes embed
-        report += '## Notes\n';
-        for (const day of sortedDailyInfo) {
-            report += `![[${day.date.format(dateFormat)}]]\n`;
+        if (settings.includeDailyNoteEmbeds) {
+            report += '## Notes\n';
+            for (const day of sortedDailyInfo) {
+                report += `![[${day.date.format(dateFormat)}]]\n`;
+            }
         }
 
         return report;
