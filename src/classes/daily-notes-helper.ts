@@ -19,6 +19,12 @@ export class DailyNotesHelper {
         return file;
     }
 
+    /**
+     * Gets all notes in the daily notes folder.
+     * @deprecated Use `getNoteForDate` instead
+     * @param app 
+     * @returns 
+     */
     public static getDailyNotes(app: App): TAbstractFile[] {
         const dailyNoteOptions = app.internalPlugins.plugins["daily-notes"].instance.options;
         const folderStr = dailyNoteOptions.folder ?? '';
